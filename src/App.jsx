@@ -18,11 +18,9 @@ export default function CareerAIHub() {
       const jd = formData.jobDescription;
       const res = formData.resumeText;
 
-      // 1. Contextual Extraction
       const jdSentences = jd.split(/[.?!]/).map(s => s.trim()).filter(s => s.length > 30);
       const coreRequirements = jdSentences.slice(0, 10);
 
-      // 2. Company Intel Engine (Simulated Research)
       const isMaui = formData.company.toLowerCase().includes("maui");
       const companyIntel = {
         focus: isMaui ? "Focus on post-wildfire recovery and trauma-informed community care." : "Market leadership through operational excellence and digital transformation.",
@@ -30,7 +28,6 @@ export default function CareerAIHub() {
         trend: "Rapid adoption of AI-assisted workflows and remote accessibility standards."
       };
 
-      // 3. 20 Conversational Questions (Locked)
       const qA = [
         "Tell me about yourself.",
         `Based on your professional background in the ${formData.jobTitle} field, how do you see your values aligning with the ${formData.company} mission?`,
@@ -63,7 +60,6 @@ export default function CareerAIHub() {
         "If you were to start today, what is the first action you would take to ensure you are a successful part of our team?"
       ];
 
-      // 4. The Schedule (Locked Motivation & Transitions)
       const indent = (q, num) => `\t\t${num}.\t${q}\n\n`;
       const schedule = `Mock Job Interview Schedule for ${formData.name}
 Position: ${formData.jobTitle} | Organization: ${formData.company}
@@ -107,7 +103,6 @@ III.	Closing 
 
 \tD.\tThanks again for your time. I will notify you of our decision as soon as we make one.`;
 
-      // 5. Resume Audit
       const resumeLines = res.split('\n').filter(l => l.trim().length > 0);
       const fullAudit = resumeLines.map((line, i) => {
         const isHeader = i < 4 || line.includes('@') || /^\d/.test(line);
@@ -119,7 +114,6 @@ III.	Closing 
         };
       });
 
-      // 6. Gem Coach Prompt
       const allQs = [...qA, ...qB, ...qC, ...qD];
       const gemPrompt = `Act as an Executive Recruiter at ${formData.company}.
 Conduct a mock interview for ${formData.name} for the ${formData.jobTitle} position.
@@ -202,7 +196,7 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
               <div className="bg-slate-900 text-emerald-400 p-6 rounded-[2rem] shadow-xl">
                 <p className="font-black text-[10px] uppercase mb-2 tracking-widest border-b border-slate-700 pb-1">AI Coach Script</p>
                 <pre className="text-[9px] h-96 overflow-auto whitespace-pre-wrap font-mono leading-tight mb-4">{analysis.gemPrompt}</pre>
-                <button onClick={() => navigator.clipboard.writeText(analysis.gemPrompt)} className="w-full bg-emerald-600 text-white p-3 rounded-xl font-black text-[10px] uppercase">Copy Coach Script</button>
+                <button onClick={() => navigator.clipboard.writeText(analysis.gemPrompt)} className="w-full bg-emerald-600 text-white p-3 rounded-xl font-black text-[10px] uppercase shadow-lg">Copy Coach Script</button>
               </div>
 
               <div className="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-200">
@@ -233,9 +227,17 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
             </div>
 
             <div className="lg:col-span-3 space-y-12">
-              <div className="bg-white p-10 border-2 rounded-[3rem] shadow-sm">
-                <h2 className="text-3xl font-black uppercase mb-6 text-slate-800 border-b-8 border-emerald-900 pb-2 inline-block">1. Official Schedule</h2>
-                <div className="whitespace-pre-wrap text-[15px] leading-relaxed text-slate-900 bg-slate-50 p-8 rounded-3xl border font-serif">
+              <div className="bg-white p-10 border-2 rounded-[3rem] shadow-sm relative">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                  <h2 className="text-3xl font-black uppercase text-slate-800 border-b-8 border-emerald-900 pb-2">1. Mock Job Interview Schedule</h2>
+                  <button 
+                    onClick={() => navigator.clipboard.writeText(analysis.schedule)}
+                    className="bg-emerald-900 text-white px-6 py-2 rounded-xl font-black uppercase text-xs hover:bg-emerald-700 transition-colors shadow-md"
+                  >
+                    Copy Schedule for Google Docs
+                  </button>
+                </div>
+                <div className="whitespace-pre-wrap text-[15px] leading-relaxed text-slate-900 bg-slate-50 p-8 rounded-3xl border font-serif shadow-inner">
                   {analysis.schedule}
                 </div>
               </div>
