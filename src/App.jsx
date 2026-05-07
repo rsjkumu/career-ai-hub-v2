@@ -18,11 +18,19 @@ export default function CareerAIHub() {
       const jd = formData.jobDescription;
       const res = formData.resumeText;
 
-      // 1. Contextual Extraction (Used for Audit & Future Trends)
-      const jdSentences = jd.split(/[.?!]/).map(s => s.trim()).filter(s => s.length > 30 && !s.includes('$'));
+      // 1. Contextual Extraction
+      const jdSentences = jd.split(/[.?!]/).map(s => s.trim()).filter(s => s.length > 30);
       const coreRequirements = jdSentences.slice(0, 10);
 
-      // 2. Synthesize 20 Questions (TOPIC B REFINED TO BE CONVERSATIONAL)
+      // 2. Company Intel Engine (Simulated Research)
+      const isMaui = formData.company.toLowerCase().includes("maui");
+      const companyIntel = {
+        focus: isMaui ? "Focus on post-wildfire recovery and trauma-informed community care." : "Market leadership through operational excellence and digital transformation.",
+        culture: isMaui ? "Rooted in 'Ohana-centric' values and local resilience." : "Results-oriented with a strong emphasis on professional growth and synergy.",
+        trend: "Rapid adoption of AI-assisted workflows and remote accessibility standards."
+      };
+
+      // 3. 20 Conversational Questions (Locked)
       const qA = [
         "Tell me about yourself.",
         `Based on your professional background in the ${formData.jobTitle} field, how do you see your values aligning with the ${formData.company} mission?`,
@@ -41,7 +49,7 @@ export default function CareerAIHub() {
 
       const qC = [
         "Given current industry growth, how would you adapt your workflow to support our latest facility expansions or operational shifts?",
-        `In the context of being a ${formData.jobTitle}, how do you handle the pressure of maintaining quality care or service during a high-volume shift?`,
+        `In the context of being a ${formData.jobTitle}, how do you handle the pressure of maintaining quality service during a high-volume shift?`,
         `How do you envision ${formData.company} evolving its approach to service delivery over the next three years?`,
         "What is your strategy for ensuring community-based excellence is maintained even when resources are tight?",
         `If you were to look at the current workflow for a ${formData.jobTitle}, what would be your first priority to ensure things run smoothly?`
@@ -55,7 +63,7 @@ export default function CareerAIHub() {
         "If you were to start today, what is the first action you would take to ensure you are a successful part of our team?"
       ];
 
-      // 3. The Schedule (Exact Transitions & Motivation Line)
+      // 4. The Schedule (Locked Motivation & Transitions)
       const indent = (q, num) => `\t\t${num}.\t${q}\n\n`;
       const schedule = `Mock Job Interview Schedule for ${formData.name}
 Position: ${formData.jobTitle} | Organization: ${formData.company}
@@ -99,7 +107,7 @@ III.	Closing 
 
 \tD.\tThanks again for your time. I will notify you of our decision as soon as we make one.`;
 
-      // 4. Full Line-by-Line Resume Audit (Maintained)
+      // 5. Resume Audit
       const resumeLines = res.split('\n').filter(l => l.trim().length > 0);
       const fullAudit = resumeLines.map((line, i) => {
         const isHeader = i < 4 || line.includes('@') || /^\d/.test(line);
@@ -111,14 +119,14 @@ III.	Closing 
         };
       });
 
-      // 5. Gem Coach Prompt (Mirrors Schedule Transitions)
+      // 6. Gem Coach Prompt
       const allQs = [...qA, ...qB, ...qC, ...qD];
       const gemPrompt = `Act as an Executive Recruiter at ${formData.company}.
 Conduct a mock interview for ${formData.name} for the ${formData.jobTitle} position.
 
 STRICT INSTRUCTIONS:
 1. START with the exact Opening Script from Section I-A.
-2. QUESTIONING: You must ask the following 20 questions ONE BY ONE. Wait for the user to answer before moving to the next question.
+2. QUESTIONING: You must ask the following 20 questions ONE BY ONE. Wait for the user to answer.
 3. TRANSITIONS: You MUST use the following exact transition strings:
    - After Q5: "Transition: Now, I want to find out about some of your previous jobs."
    - After Q10: "Transition: Next, I will ask you some questions about the job you are interviewing for and our company."
@@ -127,70 +135,109 @@ STRICT INSTRUCTIONS:
 QUESTIONS:
 ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
 
-4. FOR EACH ANSWER: Provide an [EXECUTIVE CRITIQUE] and a [GOLDEN ANSWER] that shows 2026 industry mastery.
+4. FOR EACH ANSWER: Provide an [EXECUTIVE CRITIQUE] and a [GOLDEN ANSWER].
 5. END with the exact Section III Closing script.`;
 
-      setAnalysis({ schedule, fullAudit, gemPrompt });
+      setAnalysis({ schedule, fullAudit, gemPrompt, companyIntel });
       setLoading(false);
       setActiveTab('results');
     }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-10 font-sans text-slate-900">
+    <div className="min-h-screen bg-slate-100 p-4 md:p-6 font-sans text-slate-900">
       <div className="max-w-[1400px] mx-auto bg-white shadow-2xl rounded-[2.5rem] border-t-[20px] border-emerald-900 overflow-hidden">
         
         {activeTab === 'input' ? (
-          <div className="p-12 space-y-10">
-            <header className="border-b pb-6">
+          <div className="p-8 space-y-6">
+            <header className="text-center">
               <h1 className="text-5xl font-black text-emerald-900 uppercase italic tracking-tighter">Elite Career AI Hub</h1>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">Professional Curriculum Design Specialist</p>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-emerald-50 p-6 rounded-3xl border-2 border-emerald-100 max-w-4xl mx-auto shadow-inner">
+              <p className="text-md font-bold text-emerald-900 mb-3 tracking-tight">Welcome to the Elite Career AI Hub. This tool is a comprehensive platform designed to help you master the professional interview process through 4 key components:</p>
+              <ol className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-medium text-slate-700">
+                <li className="flex gap-2"><span>1.</span> <strong>Targeted Interview Prep:</strong> 20 mock questions tailored to the Job Description and the Company.</li>
+                <li className="flex gap-2"><span>2.</span> <strong>Official Interview Schedule:</strong> Structured output for conducting realistic mock interviews with mentors.</li>
+                <li className="flex gap-2"><span>3.</span> <strong>The AI Coach:</strong> Specialized AI Coach Script for use with Gemini and Gemini Live for interactive practice.</li>
+                <li className="flex gap-2"><span>4.</span> <strong>Comprehensive Resume Audit:</strong> Line-by-line analysis and actionable revisions to align with Company values.</li>
+              </ol>
+            </div>
+
+            <hr className="border-slate-200" />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Candidate Name</label>
-                <input placeholder="Enter Name..." className="w-full p-5 border-2 rounded-2xl font-bold text-xl" onChange={(e) => setFormData({...formData, name: e.target.value})} />
+                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Applicant Name</label>
+                <input placeholder="Applicant Name" className="w-full p-3 border-2 rounded-xl font-bold" onChange={(e) => setFormData({...formData, name: e.target.value})} />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Target Company</label>
-                <input placeholder="Enter Company..." className="w-full p-5 border-2 rounded-2xl font-bold text-xl" onChange={(e) => setFormData({...formData, company: e.target.value})} />
+                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Company Name</label>
+                <input placeholder="Complete Company Name" className="w-full p-3 border-2 rounded-xl font-bold" onChange={(e) => setFormData({...formData, company: e.target.value})} />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Target Position</label>
-                <input placeholder="Enter Job Title..." className="w-full p-5 border-2 rounded-2xl font-bold text-xl" onChange={(e) => setFormData({...formData, jobTitle: e.target.value})} />
+                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Job Title</label>
+                <input placeholder="Job Title/Position" className="w-full p-3 border-2 rounded-xl font-bold" onChange={(e) => setFormData({...formData, jobTitle: e.target.value})} />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <textarea placeholder="Paste Entire Job Description..." className="h-80 p-6 border-2 rounded-3xl text-sm leading-relaxed bg-slate-50" onChange={(e) => setFormData({...formData, jobDescription: e.target.value})} />
-              <textarea placeholder="Paste Entire Resume..." className="h-80 p-6 border-2 rounded-3xl text-sm leading-relaxed bg-slate-50" onChange={(e) => setFormData({...formData, resumeText: e.target.value})} />
+            <div className="flex flex-col md:flex-row gap-4 justify-center items-start">
+              <textarea placeholder="Paste Entire Job Description..." className="w-full md:w-1/3 h-40 p-4 border-2 rounded-2xl text-xs bg-slate-50" onChange={(e) => setFormData({...formData, jobDescription: e.target.value})} />
+              <textarea placeholder="Paste Entire Applicant Resumé..." className="w-full md:w-1/3 h-40 p-4 border-2 rounded-2xl text-xs bg-slate-50" onChange={(e) => setFormData({...formData, resumeText: e.target.value})} />
             </div>
 
-            <input placeholder="Specific Concerns (e.g., employment gaps, lack of specific certifications)" className="w-full p-5 border-2 rounded-2xl bg-white" onChange={(e) => setFormData({...formData, concerns: e.target.value})} />
+            <div className="max-w-2xl mx-auto">
+                <input placeholder="Specific Concerns (Employment gaps, certification fears...)" className="w-full p-3 border-2 rounded-xl text-sm" onChange={(e) => setFormData({...formData, concerns: e.target.value})} />
+            </div>
 
-            <button onClick={handleGenerate} className="w-full bg-emerald-900 text-white font-black py-10 rounded-3xl text-4xl uppercase hover:bg-emerald-800 transition-all shadow-xl">
-              {loading ? "ANALYZING INDUSTRY DATA..." : "GENERATE ELITE CAREER SUITE"}
+            <button onClick={handleGenerate} className="w-full bg-emerald-900 text-white font-black py-6 rounded-3xl text-3xl uppercase hover:bg-emerald-800 shadow-xl transition-all">
+              {loading ? "ANALYZING..." : "GENERATE ELITE CAREER SUITE"}
             </button>
           </div>
         ) : (
           <div className="p-8 grid grid-cols-1 lg:grid-cols-4 gap-12">
             <div className="lg:col-span-1 space-y-6">
-              <button onClick={() => setActiveTab('input')} className="font-black text-emerald-900 underline uppercase text-sm tracking-widest">← New Analysis</button>
-              <div className="bg-slate-900 text-emerald-400 p-6 rounded-[2rem] shadow-lg">
+              <button onClick={() => setActiveTab('input')} className="font-black text-emerald-900 underline uppercase text-sm">← Back to Input</button>
+              
+              <div className="bg-slate-900 text-emerald-400 p-6 rounded-[2rem] shadow-xl">
                 <p className="font-black text-[10px] uppercase mb-2 tracking-widest border-b border-slate-700 pb-1">AI Coach Script</p>
-                <pre className="text-[9px] h-96 overflow-auto whitespace-pre-wrap font-mono leading-tight">{analysis.gemPrompt}</pre>
-                <button onClick={() => navigator.clipboard.writeText(analysis.gemPrompt)} className="w-full mt-4 bg-emerald-600 text-white p-3 rounded-xl font-black text-[10px] uppercase">Copy Prompt for Practice</button>
+                <pre className="text-[9px] h-96 overflow-auto whitespace-pre-wrap font-mono leading-tight mb-4">{analysis.gemPrompt}</pre>
+                <button onClick={() => navigator.clipboard.writeText(analysis.gemPrompt)} className="w-full bg-emerald-600 text-white p-3 rounded-xl font-black text-[10px] uppercase">Copy Coach Script</button>
+              </div>
+
+              <div className="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-200">
+                <h3 className="text-sm font-black text-emerald-900 uppercase mb-2">How to use AI Coach:</h3>
+                <ol className="text-[10px] space-y-2 text-slate-700 font-bold leading-tight">
+                  <li>1. <strong>Gemini Gem:</strong> Paste script into "System Instructions" for a permanent specialized coach.</li>
+                  <li>2. <strong>Gemini Live:</strong> Paste script into Gemini Live on mobile for 1-on-1 vocal practice.</li>
+                </ol>
+              </div>
+
+              <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+                <h3 className="text-xs font-black text-slate-800 uppercase mb-3 border-b-2 border-emerald-900 pb-1 inline-block">Company Intel Research</h3>
+                <div className="space-y-4 text-[10px] leading-relaxed">
+                  <div>
+                    <p className="font-black text-emerald-700 uppercase">Strategic Focus</p>
+                    <p className="font-medium">{analysis.companyIntel.focus}</p>
+                  </div>
+                  <div>
+                    <p className="font-black text-emerald-700 uppercase">Cultural Identity</p>
+                    <p className="font-medium">{analysis.companyIntel.culture}</p>
+                  </div>
+                  <div>
+                    <p className="font-black text-emerald-700 uppercase">Future Trends</p>
+                    <p className="font-medium">{analysis.companyIntel.trend}</p>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div className="lg:col-span-3 space-y-12">
               <div className="bg-white p-10 border-2 rounded-[3rem] shadow-sm">
-                <h2 className="text-3xl font-black uppercase mb-6 text-slate-800 border-b-8 border-emerald-900 pb-2 inline-block">1. Interview Schedule</h2>
-                <div className="whitespace-pre-wrap text-[15px] leading-relaxed text-slate-900 bg-slate-50 p-8 rounded-3xl border mb-6 font-serif">
+                <h2 className="text-3xl font-black uppercase mb-6 text-slate-800 border-b-8 border-emerald-900 pb-2 inline-block">1. Official Schedule</h2>
+                <div className="whitespace-pre-wrap text-[15px] leading-relaxed text-slate-900 bg-slate-50 p-8 rounded-3xl border font-serif">
                   {analysis.schedule}
                 </div>
-                <button onClick={() => navigator.clipboard.writeText(analysis.schedule)} className="w-full bg-slate-900 text-white py-6 rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-900 shadow-lg">Copy to Clipboard</button>
               </div>
 
               <div className="space-y-6">
@@ -206,7 +253,7 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
                           <p className="text-xs font-bold text-slate-800">{item.critique}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Revision</p>
+                          <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Elite Revision</p>
                           <p className="text-xs font-black text-emerald-900 bg-emerald-50 p-3 rounded-xl border border-emerald-200">{item.revision}</p>
                         </div>
                       </div>
