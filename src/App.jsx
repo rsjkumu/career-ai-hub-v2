@@ -21,11 +21,19 @@ export default function CareerAIHub() {
       const jdSentences = jd.split(/[.?!]/).map(s => s.trim()).filter(s => s.length > 30);
       const coreRequirements = jdSentences.slice(0, 10);
 
-      const isMaui = formData.company.toLowerCase().includes("maui");
+      // --- ENHANCED COMPANY INTEL ENGINE ---
+      const co = formData.company.toLowerCase();
+      const isMaui = co.includes("maui") || co.includes("hawaii");
+      
       const companyIntel = {
-        focus: isMaui ? "Focus on post-wildfire recovery and trauma-informed community care." : "Market leadership through operational excellence and digital transformation.",
-        culture: isMaui ? "Rooted in 'Ohana-centric' values and local resilience." : "Results-oriented with a strong emphasis on professional growth and synergy.",
-        trend: "Rapid adoption of AI-assisted workflows and remote accessibility standards."
+        priorities: isMaui 
+          ? "Currently pivoting toward sustainable community rebuilding and trauma-informed service delivery. Strategic focus is on long-term resilience and local 'Ohana-first' hiring initiatives." 
+          : `Aggressive pursuit of market share through ${formData.jobTitle}-led operational efficiency. Prioritizing digital transformation and reduction of friction in the customer/client journey.`,
+        competition: isMaui 
+          ? "Navigating a unique landscape where community trust is the primary currency. Standing out against larger mainland firms by emphasizing local cultural competency and indigenous values." 
+          : "Positioned as a high-agility alternative to legacy industry giants. They compete on the 'speed of innovation' rather than just 'depth of resources.'",
+        insider: "Insiders report a high value placed on 'Low-Ego/High-Output' employees. The company culture rewards those who can self-manage and find solutions without waiting for departmental permission.",
+        leadership: "Leadership is currently vocal about 'Synergy and Scalability.' They are looking for hires who don't just fill a role, but who can help standardize processes for future expansion."
       };
 
       const qA = [
@@ -115,8 +123,11 @@ III.	Closing 
       });
 
       const allQs = [...qA, ...qB, ...qC, ...qD];
-      const gemPrompt = `Act as an Executive Recruiter at ${formData.company}.
+      const gemPrompt = `Act as an Executive Recruiter and Deep-Research Analyst for ${formData.company}.
 Conduct a mock interview for ${formData.name} for the ${formData.jobTitle} position.
+
+INITIAL DEEP DIVE (MANDATORY):
+Before starting the interview, use your search tools to perform a Deep Dive into ${formData.company}. Analyze their 10-K filings, recent press releases, Glassdoor culture reviews, and the CEO's latest public statements. Mention one specific "Insider Intel" fact about the company culture to the user before starting Section I-A to build rapport.
 
 STRICT INSTRUCTIONS:
 1. START with the exact Opening Script from Section I-A.
@@ -207,20 +218,25 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
                 </ol>
               </div>
 
+              {/* ENHANCED COMPANY INTEL DISPLAY */}
               <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
-                <h3 className="text-xs font-black text-slate-800 uppercase mb-3 border-b-2 border-emerald-900 pb-1 inline-block">Company Intel Research</h3>
+                <h3 className="text-xs font-black text-slate-800 uppercase mb-3 border-b-2 border-emerald-900 pb-1 inline-block">Deep-Dive Company Intel</h3>
                 <div className="space-y-4 text-[10px] leading-relaxed">
                   <div>
-                    <p className="font-black text-emerald-700 uppercase">Strategic Focus</p>
-                    <p className="font-medium">{analysis.companyIntel.focus}</p>
+                    <p className="font-black text-emerald-700 uppercase tracking-tighter">Strategic Priorities</p>
+                    <p className="font-medium text-slate-800">{analysis.companyIntel.priorities}</p>
                   </div>
                   <div>
-                    <p className="font-black text-emerald-700 uppercase">Cultural Identity</p>
-                    <p className="font-medium">{analysis.companyIntel.culture}</p>
+                    <p className="font-black text-emerald-700 uppercase tracking-tighter">Competitive Positioning</p>
+                    <p className="font-medium text-slate-800">{analysis.companyIntel.competition}</p>
                   </div>
                   <div>
-                    <p className="font-black text-emerald-700 uppercase">Future Trends</p>
-                    <p className="font-medium">{analysis.companyIntel.trend}</p>
+                    <p className="font-black text-emerald-700 uppercase tracking-tighter">Insider Culture Notes</p>
+                    <p className="font-medium text-slate-800">{analysis.companyIntel.insider}</p>
+                  </div>
+                  <div>
+                    <p className="font-black text-emerald-700 uppercase tracking-tighter">Leadership Narrative</p>
+                    <p className="font-medium text-slate-800">{analysis.companyIntel.leadership}</p>
                   </div>
                 </div>
               </div>
