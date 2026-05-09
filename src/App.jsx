@@ -150,7 +150,7 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-6 font-sans text-slate-900">
+   <div className="min-h-screen bg-slate-100 p-4 md:p-6 font-sans text-slate-900">
       <div className="max-w-[1400px] mx-auto bg-white shadow-2xl rounded-[2.5rem] border-t-[20px] border-emerald-900 overflow-hidden">
         
         {activeTab === 'input' ? (
@@ -167,6 +167,16 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
                 <li className="flex gap-2"><span>3.</span> <strong>The AI Coach:</strong> Specialized AI Coach Script for use with Gemini and Gemini Live for interactive practice.</li>
                 <li className="flex gap-2"><span>4.</span> <strong>Comprehensive Resume Audit:</strong> Line-by-line analysis and actionable revisions to align with Company values.</li>
               </ol>
+
+              {/* CRITICAL SECURITY NOTICE */}
+              <div className="bg-white p-4 rounded-xl border-2 border-red-200 mt-6">
+                <h3 className="text-red-700 font-black uppercase text-sm mb-1 flex items-center">
+                  <span className="mr-2">⚠️</span> Critical Security Notice
+                </h3>
+                <p className="text-red-700 text-xs font-bold leading-relaxed">
+                  Do not input sensitive Personally Identifiable Information (PII) into this app. Use a pseudonym or [REDACTED] for your name. Do not include your phone number, street address, or personal email.
+                </p>
+              </div>
             </div>
 
             <hr className="border-slate-200" />
