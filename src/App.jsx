@@ -101,26 +101,38 @@ ${qC.map((q, i) => indent(q, i+1)).join("")}\tTransition: Finally, I would like 
 \tD.\tTopic: Questions about your future.
 
 ${qD.map((q, i) => indent(q, i+1)).join("")}
-III.	Closing  	
+III.	Closing  	
 
 \tA.\tInterviewee Questions: You seem like an excellent candidate for our company. Do you have any questions for me at this time regarding ${formData.company}?
 
 \tB.\tMaintain Rapport: I appreciate the time you took for this interview. Is there anything else you think would be helpful for me to know as I decide on a candidate for this position?
 
-\tC.\tAction to be taken: I should have all the information I need in order to make a decision; however, would it be all right to call you at home if I have any more questions? 
+\tC.\tAction to be taken: I should have all the information I need in order to make a decision; however, would it be all right to call you at home if I have any more questions? 
 
 \tD.\tThanks again for your time. I will notify you of our decision as soon as we make one.`;
 
-      const resumeLines = res.split('\n').filter(l => l.trim().length > 0);
-      const fullAudit = resumeLines.map((line, i) => {
-        const isHeader = i < 4 || line.includes('@') || /^\d/.test(line);
-        return {
-          original: line,
-          type: isHeader ? "Contact/Header" : "Professional Experience",
-          critique: isHeader ? "Standard header information." : `Lacks quantifiable results. Should explicitly demonstrate how this experience maps to: "${coreRequirements[i % coreRequirements.length] || 'Operational Excellence'}".`,
-          revision: isHeader ? line : `Strategically applied professional expertise to optimize ${line.toLowerCase()} for ${formData.company}, resulting in enhanced performance and quality.`
-        };
-      });
+      // --- THE NEW REAL AI RESUME AUDIT PROMPT ---
+      const resumeAuditPrompt = `ACT AS AN ELITE EXECUTIVE RECRUITER AND ATS EXPERT.
+
+YOUR MISSION:
+Conduct a strict, critical audit of my current resume against the target job description below. Tell me exactly where I am weak, and provide unique, high-impact revisions.
+
+TARGET ROLE: ${formData.jobTitle} at ${formData.company}
+
+JOB DESCRIPTION:
+${formData.jobDescription}
+
+MY CURRENT RESUME:
+${formData.resumeText}
+
+STRICT RULES FOR YOUR REVISIONS:
+1. Compare my resume directly to the Job Description. Point out any missing keywords or skills I need to add.
+2. Identify 3 to 5 weak bullet points in my resume.
+3. For each weak point, provide a specific [CRITIQUE] explaining why it fails to align with the job description.
+4. For each weak point, provide an [ELITE REVISION] rewriting the bullet point to be powerful and results-driven.
+5. NO REPETITION: Every Elite Revision must sound completely different. Do not use generic filler phrases like "Strategically applied professional expertise" at the start of every sentence.
+6. CAPITALIZATION: Maintain proper capitalization for all acronyms (e.g., AHA, JCAHO, CPR) and proper nouns (e.g., Japanese, Hawaii). Do not force words into lowercase.
+7. Be brutally honest but constructive.`;
 
       const allQs = [...qA, ...qB, ...qC, ...qD];
       const gemPrompt = `Act as an Executive Recruiter and Deep-Research Analyst for ${formData.company}.
@@ -143,7 +155,7 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
 4. FOR EACH ANSWER: Provide an [EXECUTIVE CRITIQUE] and a [GOLDEN ANSWER].
 5. END with the exact Section III Closing script.`;
 
-      setAnalysis({ schedule, fullAudit, gemPrompt, companyIntel });
+      setAnalysis({ schedule, gemPrompt, companyIntel, resumeAuditPrompt });
       setLoading(false);
       setActiveTab('results');
     }, 1500);
@@ -165,7 +177,7 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
                 <li className="flex gap-2"><span>1.</span> <strong>Targeted Interview Prep:</strong> 20 mock questions tailored to the Job Description and the Company.</li>
                 <li className="flex gap-2"><span>2.</span> <strong>Official Interview Schedule:</strong> Structured output for conducting realistic mock interviews with mentors.</li>
                 <li className="flex gap-2"><span>3.</span> <strong>The AI Coach:</strong> Specialized AI Coach Script for use with Gemini and Gemini Live for interactive practice.</li>
-                <li className="flex gap-2"><span>4.</span> <strong>Comprehensive Resume Audit:</strong> Line-by-line analysis and actionable revisions to align with Company values.</li>
+                <li className="flex gap-2"><span>4.</span> <strong>Real AI Resume Audit:</strong> A specialized prompt to analyze your resume against the job description for elite revisions.</li>
               </ol>
 
               {/* CRITICAL SECURITY NOTICE */}
@@ -217,7 +229,7 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
               <div className="bg-slate-900 text-emerald-400 p-6 rounded-[2rem] shadow-xl">
                 <p className="font-black text-[10px] uppercase mb-2 tracking-widest border-b border-slate-700 pb-1">AI Coach Script</p>
                 <pre className="text-[9px] h-96 overflow-auto whitespace-pre-wrap font-mono leading-tight mb-4">{analysis.gemPrompt}</pre>
-                <button onClick={() => navigator.clipboard.writeText(analysis.gemPrompt)} className="w-full bg-emerald-600 text-white p-3 rounded-xl font-black text-[10px] uppercase shadow-lg">Copy Coach Script</button>
+                <button onClick={() => navigator.clipboard.writeText(analysis.gemPrompt)} className="w-full bg-emerald-600 text-white p-3 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-emerald-500 transition-colors">Copy Coach Script</button>
               </div>
 
               <div className="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-200">
@@ -268,27 +280,36 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <h2 className="text-2xl font-black uppercase text-emerald-900 border-b-2 border-emerald-900 inline-block">2. Full Resume Audit</h2>
-                <div className="grid grid-cols-1 gap-4">
-                  {analysis.fullAudit.map((item, i) => (
-                    <div key={i} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                      <p className="text-[10px] font-black uppercase text-slate-400 mb-2">Line {i+1}: {item.type}</p>
-                      <p className="text-sm italic text-slate-500 mb-4 font-serif">"{item.original}"</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <p className="text-[10px] font-black uppercase text-red-500 mb-1">Critique</p>
-                          <p className="text-xs font-bold text-slate-800">{item.critique}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Elite Revision</p>
-                          <p className="text-xs font-black text-emerald-900 bg-emerald-50 p-3 rounded-xl border border-emerald-200">{item.revision}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              {/* BRAND NEW REAL AI RESUME AUDIT SECTION */}
+              <div className="bg-white p-10 border-2 border-emerald-100 rounded-[3rem] shadow-sm relative">
+                <h2 className="text-3xl font-black uppercase text-emerald-900 border-b-8 border-emerald-900 pb-2 mb-6 inline-block">2. Real AI Resume Audit Prompt</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-left">
+                  <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-200">
+                    <div className="bg-emerald-900 text-white w-8 h-8 rounded-full flex items-center justify-center font-black mb-3">1</div>
+                    <h3 className="font-black text-emerald-900 uppercase mb-1">Copy The Prompt</h3>
+                    <p className="text-xs text-slate-700">Click the button below to copy the custom prompt we engineered using your Resume and Job Description.</p>
+                  </div>
+                  <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-200">
+                    <div className="bg-emerald-900 text-white w-8 h-8 rounded-full flex items-center justify-center font-black mb-3">2</div>
+                    <h3 className="font-black text-emerald-900 uppercase mb-1">Paste & Review</h3>
+                    <p className="text-xs text-slate-700">Paste it into a free Gemini chat. The AI will provide a brutally honest audit with unique, elite revisions that retain proper acronyms and capitalization.</p>
+                  </div>
+                </div>
+
+                <button 
+                    onClick={() => navigator.clipboard.writeText(analysis.resumeAuditPrompt)}
+                    className="w-full bg-emerald-900 text-white px-6 py-4 rounded-xl font-black uppercase text-lg hover:bg-emerald-700 transition-colors shadow-md mb-6"
+                  >
+                    📄 Copy Resume Audit Prompt
+                </button>
+
+                <div className="bg-slate-50 rounded-2xl p-6 border-2 border-slate-200">
+                  <h3 className="font-black text-slate-400 uppercase text-xs tracking-widest mb-3 border-b border-slate-200 pb-2">The Code (What you are copying):</h3>
+                  <pre className="whitespace-pre-wrap font-mono text-[10px] leading-relaxed text-slate-600 max-h-64 overflow-y-auto">{analysis.resumeAuditPrompt}</pre>
                 </div>
               </div>
+
             </div>
           </div>
         )}
