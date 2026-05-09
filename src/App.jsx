@@ -69,12 +69,12 @@ export default function CareerAIHub() {
       ];
 
       const indent = (q, num) => `\t\t${num}.\t${q}\n\n`;
-      const schedule = `Mock Job Interview Schedule for ${formData.name}
+      const schedule = `Mock Job Interview Schedule for ${formData.name || "[Applicant]"}
 Position: ${formData.jobTitle} | Organization: ${formData.company}
 
 I.	Opening
 
-\tA.\tEstablish Rapport: Hello, Mr./Ms. ${formData.name}. My name is [Interviewer Name] of ${formData.company}, I would like to see if you are a good fit for ${formData.company}.
+\tA.\tEstablish Rapport: Hello, ${formData.name ? `Mr./Ms. ${formData.name}` : "there"}. My name is [Interviewer Name] of ${formData.company}, I would like to see if you are a good fit for ${formData.company}.
 
 \tB.\tPurpose: I will ask you some questions about yourself, your work history, your possible role here at our company, and your future plans.
 
@@ -136,7 +136,7 @@ STRICT RULES FOR YOUR REVISIONS:
 
       const allQs = [...qA, ...qB, ...qC, ...qD];
       const gemPrompt = `Act as an Executive Recruiter and Deep-Research Analyst for ${formData.company}.
-Conduct a mock interview for ${formData.name} for the ${formData.jobTitle} position.
+Conduct a mock interview for ${formData.name || "the applicant"} for the ${formData.jobTitle} position.
 
 INITIAL DEEP DIVE (MANDATORY):
 Before starting the interview, use your search tools to perform a Deep Dive into ${formData.company}. Analyze their 10-K filings, recent press releases, Glassdoor culture reviews, and the CEO's latest public statements. Mention one specific "Insider Intel" fact about the company culture to the user before starting Section I-A to build rapport.
@@ -186,17 +186,18 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
                   <span className="mr-2">⚠️</span> Critical Security Notice
                 </h3>
                 <p className="text-red-700 text-xs font-bold leading-relaxed">
-                  Do not input sensitive Personally Identifiable Information (PII) into this app. Use a pseudonym or [REDACTED] for your name. Do not include your phone number, street address, or personal email.
+                  Do not input sensitive Personally Identifiable Information (PII) into this app. You may use your first name only, or a pseudonym. Do not include your phone number, street address, or personal email in any of the fields below.
                 </p>
               </div>
             </div>
 
             <hr className="border-slate-200" />
 
+            {/* INPUT FIELDS WITH LABELS */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Applicant Name</label>
-                <input placeholder="Applicant Name" className="w-full p-3 border-2 rounded-xl font-bold" onChange={(e) => setFormData({...formData, name: e.target.value})} />
+                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Applicant Name (First Name Only)</label>
+                <input placeholder="First Name Only or Pseudonym" className="w-full p-3 border-2 rounded-xl font-bold" onChange={(e) => setFormData({...formData, name: e.target.value})} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Company Name</label>
@@ -208,16 +209,25 @@ ${allQs.map((q, i) => `${i+1}. ${q}`).join('\n')}
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 justify-center items-start">
-              <textarea placeholder="Paste Entire Job Description..." className="w-full md:w-1/3 h-40 p-4 border-2 rounded-2xl text-xs bg-slate-50" onChange={(e) => setFormData({...formData, jobDescription: e.target.value})} />
-              <textarea placeholder="Paste Entire Applicant Resumé..." className="w-full md:w-1/3 h-40 p-4 border-2 rounded-2xl text-xs bg-slate-50" onChange={(e) => setFormData({...formData, resumeText: e.target.value})} />
+            {/* TEXTAREAS WITH LABELS */}
+            <div className="flex flex-col md:flex-row gap-4 justify-center items-start w-full">
+              <div className="space-y-1 w-full md:w-1/2">
+                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Job Description</label>
+                <textarea placeholder="Paste Entire Job Description here..." className="w-full h-40 p-4 border-2 rounded-2xl text-xs bg-slate-50" onChange={(e) => setFormData({...formData, jobDescription: e.target.value})} />
+              </div>
+              <div className="space-y-1 w-full md:w-1/2">
+                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Applicant Resumé</label>
+                <textarea placeholder="Paste Entire Applicant Resumé (Please redact PII like phone number, address, personal email, etc.)..." className="w-full h-40 p-4 border-2 rounded-2xl text-xs bg-slate-50" onChange={(e) => setFormData({...formData, resumeText: e.target.value})} />
+              </div>
             </div>
 
-            <div className="max-w-2xl mx-auto">
+            {/* SPECIFIC CONCERNS WITH LABEL */}
+            <div className="max-w-2xl mx-auto space-y-1 mt-4">
+                <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Specific Concerns</label>
                 <input placeholder="Specific Concerns (Employment gaps, certification fears...)" className="w-full p-3 border-2 rounded-xl text-sm" onChange={(e) => setFormData({...formData, concerns: e.target.value})} />
             </div>
 
-            <button onClick={handleGenerate} className="w-full bg-emerald-900 text-white font-black py-6 rounded-3xl text-3xl uppercase hover:bg-emerald-800 shadow-xl transition-all">
+            <button onClick={handleGenerate} className="w-full bg-emerald-900 text-white font-black py-6 rounded-3xl text-3xl uppercase hover:bg-emerald-800 shadow-xl transition-all mt-4">
               {loading ? "ANALYZING..." : "GENERATE ELITE CAREER SUITE"}
             </button>
           </div>
